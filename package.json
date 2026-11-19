@@ -1,0 +1,65 @@
+{
+  "name": "spendmat-daily-spending",
+  "version": "1.0.0",
+  "description": "Tactile creative-desk desktop application for daily spending tracking with automatic nightly missed-entry notifications.",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/core.test.js",
+    "build:win": "electron-builder --win",
+    "build:android": "node scripts/build-android.js"
+  },
+  "build": {
+    "appId": "com.spendmat.daily",
+    "productName": "SpendMat",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "node_modules/@fontsource/**/*"
+    ],
+    "asarUnpack": [
+      "assets/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SpendMat",
+      "runAfterFinish": false
+    }
+  },
+  "keywords": [
+    "desktop",
+    "electron",
+    "spending",
+    "expense-tracker",
+    "notifications"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.5",
+    "@fontsource/plus-jakarta-sans": "^5.2.5",
+    "@fontsource/silkscreen": "^5.2.5"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.18.0"
+  }
+}

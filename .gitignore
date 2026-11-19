@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Electron build outputs
+dist/
+
+# Android build & local files
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+
+# Logs & OS files
+npm-debug.log*
+.DS_Store
+Thumbs.db

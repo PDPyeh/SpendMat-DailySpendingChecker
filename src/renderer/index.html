@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;">
+  <title>SpendMat - Daily Spending Desk</title>
+  <link rel="stylesheet" href="../../node_modules/@fontsource/silkscreen/400.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/silkscreen/700.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/plus-jakarta-sans/400.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/plus-jakarta-sans/500.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/plus-jakarta-sans/600.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/plus-jakarta-sans/700.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/plus-jakarta-sans/800.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/ibm-plex-mono/500.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/ibm-plex-mono/600.css">
+  <link rel="stylesheet" href="../../node_modules/@fontsource/ibm-plex-mono/700.css">
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+  <div class="desk-shell">
+    <!-- Top Wooden Desk Trim -->
+    <div class="wood-rim wood-rim-top" aria-hidden="true"></div>
+
+    <!-- Cutting Mat Workspace -->
+    <div class="cutting-mat">
+      <div id="desk-props-layer" class="desk-props-layer" aria-hidden="true"></div>
+
+      <!-- Top Stationery Header Bar -->
+      <header class="mat-header">
+        <div class="brand-block">
+          <h1 class="sticker-wordmark" aria-label="SpendMat Daily Spending Desk">SPENDMAT</h1>
+          <span class="brand-subtag">DAILY SPENDING DESK</span>
+        </div>
+
+        <nav class="folder-nav" role="tablist" aria-label="Spending desk views">
+          <button type="button" class="folder-tab is-active" role="tab" aria-selected="true" aria-controls="view-desk" id="tab-desk" data-view="desk">
+            <span class="tab-num">01</span>
+            <span class="tab-label">Today's Sheet</span>
+          </button>
+          <button type="button" class="folder-tab" role="tab" aria-selected="false" aria-controls="view-archive" id="tab-archive" data-view="archive">
+            <span class="tab-num">02</span>
+            <span class="tab-label">Monthly Archive</span>
+          </button>
+          <button type="button" class="folder-tab" role="tab" aria-selected="false" aria-controls="view-settings" id="tab-settings" data-view="settings">
+            <span class="tab-num">03</span>
+            <span class="tab-label">Night Watch</span>
+          </button>
+        </nav>
+
+        <div class="header-actions">
+          <label class="sr-only" for="quick-currency-select">Currency</label>
+          <select id="quick-currency-select" class="mat-select" aria-label="Currency">
+            <option value="USD">USD ($)</option>
+          </select>
+          <button type="button" id="theme-toggle-btn" class="mat-icon-btn" aria-label="Switch to Night Desk theme" title="Switch Day or Night Desk">
+            <span id="theme-toggle-icon"></span>
+            <span id="theme-toggle-text">Night</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Global Loading / Error / Reminder Banners -->
+      <div id="app-loading" class="status-slip status-slip-loading" role="status" aria-live="polite">
+        Opening your spending notebook...
+      </div>
+
+      <div id="app-error" class="status-slip status-slip-error" role="alert" hidden>
+        <div class="status-slip-body">
+          <strong id="app-error-title">Could not load your spending notebook.</strong>
+          <p id="app-error-detail"></p>
+        </div>
+        <button type="button" id="retry-load-btn" class="btn btn-secondary">Retry</button>
+      </div>
+
+      <section id="night-alert-banner" class="night-alert-slip" role="alert" aria-live="assertive" hidden>
+        <div class="night-alert-content">
+          <span class="night-alert-tag">NIGHT CHECK</span>
+          <div>
+            <strong id="night-alert-title">No spending logged for today yet.</strong>
+            <p id="night-alert-desc">Record an expense or stamp today as a zero-spend day so tonight's check closes out.</p>
+          </div>
+        </div>
+        <div class="night-alert-actions">
+          <button type="button" id="alert-focus-add-btn" class="btn btn-primary">Log Spending</button>
+          <button type="button" id="alert-nospend-btn" class="btn btn-yellow">Stamp $0 Day</button>
+          <button type="button" id="alert-snooze-btn" class="btn btn-paper">Snooze 30m</button>
+          <button type="button" id="alert-dismiss-btn" class="btn btn-ghost-light" aria-label="Dismiss alert">Dismiss</button>
+        </div>
+      </section>
+
+      <!-- Main Content Views -->
+      <main class="mat-main" id="main-workspace" hidden>
+        <!-- VIEW 1: TODAY'S SHEET (Asymmetric Creative Desk) -->
+        <section id="view-desk" class="desk-view is-active" role="tabpanel" aria-labelledby="tab-desk">
+          <div class="desk-grid">
+            <!-- Primary Focal Sheet: Spiral Torn Notebook Ledger -->
+            <article class="notebook-sheet">
+              <div class="binder-clip-anchor" id="main-binder-clip" aria-hidden="true"></div>
+              <div class="spiral-punches" aria-hidden="true"></div>
+
+              <div class="sheet-inner">
+                <div class="sheet-top-bar">
+                  <div class="date-stepper" role="group" aria-label="Choose day">
+                    <button type="button" id="prev-day-btn" class="step-btn" aria-label="Previous day"></button>
+                    <div class="date-display-wrap">
+                      <label class="sr-only" for="active-date-input">Selected date</label>
+                      <input type="date" id="active-date-input" class="date-native-input" aria-label="Pick a date">
+                      <span id="active-date-label" class="date-friendly-label">Today</span>
+                    </div>
+                    <button type="button" id="next-day-btn" class="step-btn" aria-label="Next day"></button>
+                    <button type="button" id="jump-today-btn" class="btn btn-small btn-paper" hidden>Back to Today</button>
+                  </div>
+
+                  <div class="day-total-block">
+                    <span class="total-caption" id="day-total-caption">TODAY'S SPENDING</span>
+                    <div class="total-figure" id="day-total-value">$0.00</div>
+                    <span class="total-meta" id="day-entry-count">0 entries</span>
+                  </div>
+                </div>
+
+                <!-- Optional Daily Budget Strip (shown only when user sets a daily budget) -->
+                <div id="budget-strip" class="budget-strip" hidden>
+                  <div class="budget-strip-head">
+                    <span id="budget-strip-label">Daily budget</span>
+                    <strong id="budget-strip-status"></strong>
+                  </div>
+                  <div class="budget-bar-track" aria-hidden="true">
+                    <div id="budget-bar-fill" class="budget-bar-fill"></div>
+                  </div>
+                </div>
+
+                <!-- Quick Spend Entry Form -->
+                <form id="quick-add-form" class="quick-add-form" novalidate>
+                  <div class="form-field field-amount">
+                    <label for="entry-amount-input">Amount</label>
+                    <div class="amount-input-wrap">
+                      <span class="currency-prefix" id="form-currency-prefix">$</span>
+                      <input
+                        type="number"
+                        id="entry-amount-input"
+                        name="amount"
+                        step="any"
+                        min="0.01"
+                        inputmode="decimal"
+                        placeholder="0.00"
+                        required
+                      >
+                    </div>
+                  </div>
+
+                  <div class="form-field field-note">
+                    <label for="entry-note-input">Item or note</label>
+                    <input
+                      type="text"
+                      id="entry-note-input"
+                      name="note"
+                      maxlength="140"
+                      placeholder="Coffee, lunch, bus fare..."
+                    >
+                  </div>
+
+                  <div class="form-field field-category">
+                    <label for="entry-category-select">Category</label>
+                    <select id="entry-category-select" name="category"></select>
+                  </div>
+
+                  <div class="form-submit-wrap">
+                    <button type="submit" id="add-entry-btn" class="btn btn-primary btn-submit">Add Spending</button>
+                  </div>
+                </form>
+                <p id="form-validation-msg" class="inline-error" role="alert" hidden></p>
+
+                <!-- Ruled Notebook Ledger List -->
+                <div class="ledger-section">
+                  <div class="ledger-header">
+                    <h2 class="ledger-title">Notebook Entries</h2>
+                  </div>
+
+                  <ul id="today-entries-list" class="ledger-list" aria-live="polite"></ul>
+
+                  <div id="today-empty-state" class="empty-notebook-state" hidden>
+                    <p id="today-empty-title" class="empty-title">No spending logged for this day yet.</p>
+                    <p id="today-empty-desc" class="empty-desc">Enter an amount above to calculate your total, or stamp today as a zero-spend day so tonight's reminder skips you.</p>
+                    <div class="empty-actions">
+                      <button type="button" id="empty-stamp-nospend-btn" class="btn btn-yellow">Stamp $0 No-Spend Day</button>
+                      <button type="button" id="empty-unstamp-btn" class="btn btn-paper" hidden>Remove $0 Stamp</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="torn-bottom-edge" aria-hidden="true"></div>
+            </article>
+
+            <!-- Right Pinned Stationery Stack -->
+            <aside class="desk-side-stack" aria-label="Night reminder and weekly summary">
+              <!-- Yellow Laminated Clipboard: Night Watch -->
+              <section class="clipboard-card">
+                <div class="clipboard-clasp" aria-hidden="true"></div>
+                <div class="clipboard-inner">
+                  <div class="clipboard-head">
+                    <h2 class="card-sticker-heading">NIGHT WATCH</h2>
+                    <span id="night-status-pill" class="real-state-tag">
+                      <span class="state-dot" aria-hidden="true"></span>
+                      <span id="night-status-label">Armed</span>
+                    </span>
+                  </div>
+
+                  <p id="night-watch-headline" class="watch-headline">Checking tonight at 21:00</p>
+                  <p id="night-watch-detail" class="watch-detail">If today stays empty, a Windows notification will remind you automatically.</p>
+
+                  <div class="watch-quick-controls">
+                    <label class="toggle-row" for="quick-reminder-toggle">
+                      <span>Automatic night check</span>
+                      <input type="checkbox" id="quick-reminder-toggle" class="toggle-checkbox">
+                    </label>
+
+                    <div class="time-pick-row">
+                      <label for="quick-reminder-time">Notify at</label>
+                      <input type="time" id="quick-reminder-time" class="time-input">
+                    </div>
+                  </div>
+
+                  <div class="watch-actions">
+                    <button type="button" id="quick-test-notif-btn" class="btn btn-magenta btn-full">Send Test Notification</button>
+                  </div>
+                  <p id="quick-notif-feedback" class="watch-feedback" role="status" aria-live="polite" hidden></p>
+                </div>
+              </section>
+
+              <!-- Torn Tape Note: 7-Day Spending Bars -->
+              <section class="sticky-chart-note">
+                <div class="tape-strip" aria-hidden="true"></div>
+                <div class="sticky-head">
+                  <h2 class="sticky-title">Daily spending, last 7 days</h2>
+                  <span id="week-total-badge" class="sticky-total">$0.00</span>
+                </div>
+                <div id="week-bar-chart" class="week-bar-chart" role="group" aria-label="Daily spending over the last 7 days"></div>
+                <div class="sticky-foot">
+                  <span id="week-avg-text">Daily average: $0.00</span>
+                  <span class="sticky-hint">Click a bar to open that day</span>
+                </div>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <!-- VIEW 2: MONTHLY ARCHIVE (Clipped Index Cards) -->
+        <section id="view-archive" class="desk-view" role="tabpanel" aria-labelledby="tab-archive" hidden>
+          <div class="archive-toolbar">
+            <div class="month-stepper" role="group" aria-label="Choose month">
+              <button type="button" id="prev-month-btn" class="step-btn step-btn-mat" aria-label="Previous month"></button>
+              <h2 id="archive-month-title" class="sticker-subheading">November 2026</h2>
+              <button type="button" id="next-month-btn" class="step-btn step-btn-mat" aria-label="Next month"></button>
+            </div>
+
+            <div class="archive-toolbar-right">
+              <div class="month-sum-chip">
+                <span class="month-sum-label">Month total</span>
+                <strong id="archive-month-total">$0.00</strong>
+              </div>
+              <button type="button" id="export-csv-btn" class="btn btn-yellow">Export CSV</button>
+            </div>
+          </div>
+
+          <div class="archive-top-grid">
+            <!-- Clipped Card 01: Monthly Calendar Sheet -->
+            <article class="clipped-card card-calendar">
+              <div class="mini-clip" aria-hidden="true"></div>
+              <div class="clipped-card-head">
+                <span class="card-index-num">01</span>
+                <h3>Daily Log Calendar</h3>
+              </div>
+              <div class="calendar-weekdays" aria-hidden="true">
+                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+              </div>
+              <div id="archive-calendar-grid" class="calendar-grid"></div>
+              <div class="calendar-legend">
+                <span><i class="legend-swatch swatch-logged"></i> Logged</span>
+                <span><i class="legend-swatch swatch-nospend"></i> $0 Stamped</span>
+                <span><i class="legend-swatch swatch-missed"></i> Unlogged past day</span>
+              </div>
+            </article>
+
+            <!-- Clipped Card 02: Category Breakdown -->
+            <article class="clipped-card card-categories">
+              <div class="mini-clip mini-clip-yellow" aria-hidden="true"></div>
+              <div class="clipped-card-head">
+                <span class="card-index-num">02</span>
+                <h3>Where spending went this month</h3>
+              </div>
+              <div id="category-breakdown-list" class="category-breakdown-list"></div>
+              <p id="category-empty-note" class="empty-desc" hidden>No expenses recorded for this month yet. Add an entry on Today's Sheet to see the category split.</p>
+            </article>
+          </div>
+
+          <!-- Full-Width Clipped Ledger Card: Filterable Month History -->
+          <article class="clipped-card card-history">
+            <div class="mini-clip" aria-hidden="true"></div>
+            <div class="history-top">
+              <div class="clipped-card-head">
+                <span class="card-index-num">03</span>
+                <h3>All Entries This Month</h3>
+              </div>
+              <div class="history-filters">
+                <label class="sr-only" for="archive-search-input">Search notes</label>
+                <input type="search" id="archive-search-input" class="filter-input" placeholder="Search notes...">
+                <label class="sr-only" for="archive-category-filter">Filter by category</label>
+                <select id="archive-category-filter" class="filter-select">
+                  <option value="ALL">All categories</option>
+                </select>
+                <button type="button" id="archive-clear-filters-btn" class="btn btn-small btn-paper" hidden>Clear filters</button>
+              </div>
+            </div>
+
+            <div class="history-table-wrap">
+              <table class="history-table" id="archive-history-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Note</th>
+                    <th scope="col" class="col-amount">Amount</th>
+                    <th scope="col" class="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="archive-history-tbody"></tbody>
+              </table>
+            </div>
+            <div id="archive-history-empty" class="empty-notebook-state" hidden>
+              <p id="archive-empty-title" class="empty-title">No spending recorded for this month yet.</p>
+              <p id="archive-empty-desc" class="empty-desc">Switch to Today's Sheet to add your first entry.</p>
+            </div>
+          </article>
+        </section>
+
+        <!-- VIEW 3: NIGHT WATCH & DESK SETTINGS -->
+        <section id="view-settings" class="desk-view" role="tabpanel" aria-labelledby="tab-settings" hidden>
+          <article class="notebook-sheet settings-sheet">
+            <div class="binder-clip-anchor" id="settings-binder-clip" aria-hidden="true"></div>
+            <div class="spiral-punches" aria-hidden="true"></div>
+
+            <div class="sheet-inner">
+              <div class="settings-header">
+                <h2 class="ledger-title-large">Night Watch & Desk Settings</h2>
+                <p class="settings-intro">Configure when SpendMat checks for missing entries at night, set an optional daily spending limit, and manage your local backup files.</p>
+              </div>
+
+              <div class="settings-sections">
+                <!-- Section 1: Night Reminder Schedule -->
+                <section class="settings-group">
+                  <h3>Automatic Night Reminder</h3>
+                  <div class="settings-grid">
+                    <label class="setting-toggle-card" for="set-reminder-enabled">
+                      <div>
+                        <strong>Enable automatic night check</strong>
+                        <span>Sends a notification at your chosen time if today has no logged entries and no $0 stamp.</span>
+                      </div>
+                      <input type="checkbox" id="set-reminder-enabled" class="toggle-checkbox">
+                    </label>
+
+                    <div class="setting-field">
+                      <label for="set-reminder-time">Night reminder time (24-hour)</label>
+                      <input type="time" id="set-reminder-time" class="text-input">
+                    </div>
+
+                    <div class="setting-field">
+                      <label for="set-repeat-interval">If still unlogged after first alert</label>
+                      <select id="set-repeat-interval" class="text-input">
+                        <option value="0">Remind once per night</option>
+                        <option value="30">Repeat every 30 minutes</option>
+                        <option value="60">Repeat every 60 minutes</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="settings-action-row">
+                    <button type="button" id="settings-test-notif-btn" class="btn btn-magenta">Send Test Windows Notification</button>
+                    <span id="settings-notif-status" class="inline-feedback" role="status" aria-live="polite"></span>
+                  </div>
+                </section>
+
+                <!-- Section 2: Currency & Daily Budget -->
+                <section class="settings-group">
+                  <h3>Currency & Daily Budget</h3>
+                  <div class="settings-grid">
+                    <div class="setting-field">
+                      <label for="set-currency-select">Display currency</label>
+                      <select id="set-currency-select" class="text-input"></select>
+                    </div>
+
+                    <div class="setting-field">
+                      <label for="set-daily-budget">Optional daily spending target</label>
+                      <div class="budget-input-row">
+                        <input type="number" id="set-daily-budget" class="text-input" min="1" step="any" placeholder="Leave blank for no limit">
+                        <button type="button" id="save-budget-btn" class="btn btn-primary">Save</button>
+                        <button type="button" id="clear-budget-btn" class="btn btn-paper">Clear</button>
+                      </div>
+                      <p id="budget-validation-msg" class="inline-error" role="alert" hidden></p>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Section 3: Platform & Appearance -->
+                <section class="settings-group">
+                  <h3 id="settings-platform-heading">Desktop & Theme</h3>
+                  <div class="settings-grid">
+                    <label class="setting-toggle-card" for="set-minimize-tray" data-desktop-only="true">
+                      <div>
+                        <strong>Keep watching in System Tray when closed</strong>
+                        <span>Closing the window hides SpendMat to your taskbar tray so tonight's automatic notification still fires.</span>
+                      </div>
+                      <input type="checkbox" id="set-minimize-tray" class="toggle-checkbox">
+                    </label>
+
+                    <label class="setting-toggle-card" for="set-launch-login" data-desktop-only="true">
+                      <div>
+                        <strong>Start SpendMat when Windows signs in</strong>
+                        <span>Ensures the nightly reminder runs even on days you forget to open the app manually.</span>
+                      </div>
+                      <input type="checkbox" id="set-launch-login" class="toggle-checkbox">
+                    </label>
+
+                    <div class="setting-toggle-card android-notif-card" data-android-only="true">
+                      <div>
+                        <strong>Android Background Night Alarm</strong>
+                        <span id="android-notif-perm-desc">Android checks automatically at your night time even when SpendMat is closed or after a reboot.</span>
+                      </div>
+                      <button type="button" id="android-perm-btn" class="btn btn-small btn-yellow">Check Permission</button>
+                    </div>
+
+                    <div class="setting-field">
+                      <label for="set-theme-select">Desk lighting theme</label>
+                      <select id="set-theme-select" class="text-input">
+                        <option value="day">Day Desk (Cobalt Mat & Cream Paper)</option>
+                        <option value="night">Night Desk (Deep Navy Mat & Slate Paper)</option>
+                      </select>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Section 4: Local Data & Backup -->
+                <section class="settings-group">
+                  <h3>Local Storage & Backup</h3>
+                  <p class="data-path-line">Saved locally at: <code id="data-file-path-code"></code></p>
+                  <div class="settings-action-row wrap-actions">
+                    <button type="button" id="open-folder-btn" class="btn btn-paper" data-desktop-only="true">Open Data Folder</button>
+                    <button type="button" id="export-backup-btn" class="btn btn-paper">Export JSON Backup</button>
+                    <button type="button" id="import-backup-btn" class="btn btn-paper">Import JSON Backup</button>
+                    <button type="button" id="reset-data-btn" class="btn btn-danger-outline">Clear All Entries</button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <!-- Bottom Wooden Desk Status Strip -->
+    <footer class="wood-footer">
+      <span class="wood-chip">SPENDMAT DESK</span>
+      <span class="wood-chip" id="footer-reminder-chip">NIGHT CHECK: 21:00</span>
+      <span class="wood-chip" id="footer-tray-chip">TRAY: ON</span>
+      <span class="wood-chip wood-chip-muted">CTRL+N QUICK ADD</span>
+    </footer>
+  </div>
+
+  <!-- Toast Feedback Banner (with optional Undo) -->
+  <div id="toast-bar" class="toast-bar" role="status" aria-live="polite" hidden>
+    <span id="toast-message"></span>
+    <button type="button" id="toast-undo-btn" class="btn btn-small btn-yellow" hidden>Undo</button>
+  </div>
+
+  <!-- Edit Entry Modal -->
+  <div id="edit-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" hidden>
+    <div class="modal-card">
+      <div class="mini-clip" aria-hidden="true"></div>
+      <div class="modal-header">
+        <h2 id="edit-modal-title">Edit Spending Entry</h2>
+        <button type="button" id="edit-modal-close" class="btn btn-small btn-paper" aria-label="Close edit dialog">Close</button>
+      </div>
+      <form id="edit-entry-form" class="modal-form" novalidate>
+        <input type="hidden" id="edit-entry-id">
+        <div class="setting-field">
+          <label for="edit-entry-date">Date</label>
+          <input type="date" id="edit-entry-date" class="text-input" required>
+        </div>
+        <div class="setting-field">
+          <label for="edit-entry-amount">Amount</label>
+          <input type="number" id="edit-entry-amount" class="text-input" step="any" min="0.01" required>
+        </div>
+        <div class="setting-field">
+          <label for="edit-entry-category">Category</label>
+          <select id="edit-entry-category" class="text-input"></select>
+        </div>
+        <div class="setting-field">
+          <label for="edit-entry-note">Note</label>
+          <input type="text" id="edit-entry-note" class="text-input" maxlength="140" placeholder="What did you spend on?">
+        </div>
+        <p id="edit-validation-msg" class="inline-error" role="alert" hidden></p>
+        <div class="modal-actions">
+          <button type="button" id="edit-cancel-btn" class="btn btn-paper">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Reset Modal -->
+  <div id="reset-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title" hidden>
+    <div class="modal-card modal-card-narrow">
+      <div class="mini-clip" aria-hidden="true"></div>
+      <div class="modal-header">
+        <h2 id="reset-modal-title">Clear All Spending Entries?</h2>
+      </div>
+      <p class="modal-body-copy">This deletes every recorded expense and zero-spend stamp from your local desk file. Your night reminder settings stay intact. Export a JSON backup first if you want a copy.</p>
+      <div class="modal-actions">
+        <button type="button" id="reset-cancel-btn" class="btn btn-paper">Keep My Data</button>
+        <button type="button" id="reset-confirm-btn" class="btn btn-magenta">Yes, Clear All Entries</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/icons.js"></script>
+  <script src="./js/format.js"></script>
+  <script src="./js/bridge.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
