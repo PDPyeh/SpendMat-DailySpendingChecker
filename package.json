@@ -51,7 +51,7 @@
     "expense-tracker",
     "notifications"
   ],
-  "author": "",
+  "author": "PDPyeh",
   "license": "MIT",
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.5",
